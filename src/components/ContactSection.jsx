@@ -4,7 +4,8 @@ import { Phone, MessageCircle, MapPin, Clock, ShieldCheck } from 'lucide-react';
 
 export default function ContactSection({ 
   phone = "919648847816", 
-  city = "Lucknow" 
+  city = "Lucknow",
+  workingHours = "Mon – Sun: 7:00 AM – 7:00 PM"
 }) {
   return (
     <section id="contact" className="contact-section">
@@ -12,22 +13,22 @@ export default function ContactSection({
         <div className="contact-card">
           <div className="contact-text">
             <div className="section-badge">
-              <MapPin size={15} />
-              <span>Serving {city} &amp; Surrounding Regions</span>
+              <MapPin size={13} />
+              <span>{city} &amp; Surrounding Areas</span>
             </div>
-            <h2>Get in Touch With Our Cleaning Crew</h2>
-            <p>
-              Have questions about our water filtration, scheduling an AMC, or need a customized quote for your housing society? We are just a phone call or WhatsApp message away.
+            <h2>Quick Cleaning Support</h2>
+            <p className="contact-desc">
+              Have questions regarding RO water filtration, booking an AMC, or need a committee quotation for your housing society? Reach out directly.
             </p>
             
             <div className="contact-badges">
               <div className="badge-item">
-                <Clock size={16} />
-                <span>Mon – Sun: 7:00 AM – 7:00 PM</span>
+                <Clock size={15} />
+                <span>{workingHours}</span>
               </div>
               <div className="badge-item">
-                <ShieldCheck size={16} />
-                <span>Zero Hard Chemicals Used</span>
+                <ShieldCheck size={15} />
+                <span>Zero Harsh Chemicals</span>
               </div>
             </div>
           </div>
@@ -41,18 +42,18 @@ export default function ContactSection({
             <div className="action-buttons-group">
               <a 
                 href={`tel:+${phone}`} 
-                className="btn btn-secondary action-btn"
+                className="btn btn-secondary btn-sm action-btn"
               >
-                <Phone size={18} />
+                <Phone size={16} />
                 <span>Call Now</span>
               </a>
               <a 
                 href={`https://wa.me/${phone}?text=${encodeURIComponent("Hi SolarCleaner, I'd like to ask a few questions about solar panel cleaning.")}`}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="btn btn-wa action-btn"
+                className="btn btn-wa btn-sm action-btn"
               >
-                <MessageCircle size={18} />
+                <MessageCircle size={16} />
                 <span>WhatsApp</span>
               </a>
             </div>
@@ -64,28 +65,35 @@ export default function ContactSection({
         .contact-section {
           background: var(--hero);
           border-bottom: 1px solid var(--line);
-          padding: 60px 0;
+          padding: 42px 0;
         }
 
         .contact-card {
           background: var(--surface);
           border: 1px solid var(--line);
           border-radius: var(--radius-lg);
-          padding: 40px;
+          padding: 28px 34px;
           display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          gap: 36px;
+          grid-template-columns: 1.3fr 0.9fr;
+          gap: 28px;
           align-items: center;
-          box-shadow: var(--card-shadow);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
-        .contact-text p {
-          margin-bottom: 20px;
+        .contact-text h2 {
+          font-size: 1.55rem;
+          margin-bottom: 6px;
+        }
+
+        .contact-desc {
+          font-size: 0.95rem;
+          line-height: 1.55;
+          margin-bottom: 14px;
         }
 
         .contact-badges {
           display: flex;
-          gap: 16px;
+          gap: 14px;
           flex-wrap: wrap;
         }
 
@@ -93,7 +101,7 @@ export default function ContactSection({
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 0.86rem;
+          font-size: 0.82rem;
           color: var(--muted);
           font-weight: 600;
         }
@@ -102,7 +110,7 @@ export default function ContactSection({
           background: var(--bg);
           border: 1px solid var(--line);
           border-radius: var(--radius-md);
-          padding: 28px;
+          padding: 20px 22px;
           text-align: center;
           display: flex;
           flex-direction: column;
@@ -110,20 +118,20 @@ export default function ContactSection({
         }
 
         .direct-reach-label {
-          font-size: 0.85rem;
+          font-size: 0.78rem;
           text-transform: uppercase;
           letter-spacing: 0.05em;
           color: var(--muted);
           font-weight: 700;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
 
         .phone-big-link {
-          font-size: 1.6rem;
+          font-size: 1.4rem;
           font-weight: 800;
           color: var(--text);
           text-decoration: none;
-          margin-bottom: 18px;
+          margin-bottom: 14px;
           letter-spacing: -0.01em;
           transition: color 0.2s ease;
         }
@@ -143,11 +151,11 @@ export default function ContactSection({
           justify-content: center;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 820px) {
           .contact-card {
             grid-template-columns: 1fr;
-            padding: 24px;
-            gap: 24px;
+            padding: 22px;
+            gap: 20px;
           }
         }
       `}</style>

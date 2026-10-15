@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useId } from 'react';
-import { MapPin, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { MapPin, MessageCircle, Send, CheckCircle2, Loader2, Check, Calendar, Clock } from 'lucide-react';
 
 const CUSTOMER_TYPES = [
   'Home owner',
@@ -14,7 +14,11 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
   const phoneId = useId();
   const typeId = useId();
   const sizeId = useId();
+  const dateId = useId();
+  const timeId = useId();
   const addressId = useId();
+
+  const todayDate = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
     name: '',
@@ -22,9 +26,12 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
     type: 'Home owner',
     size: '',
     address: '',
+    preferredDate: '',
+    preferredTime: 'Morning (7:00 AM – 10:00 AM)',
     locationCoords: '',
   });
 
+  const [hasLocation, setHasLocation] = useState(false);
   const [locationStatus, setLocationStatus] = useState('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,43 +44,52 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      setLocationStatus('Location is not supported on this device. Please type your full address.');
+      setLocationStatus('GPS is not supported on this browser. Please type your full address.');
       return;
     }
 
     setIsGettingLocation(true);
-    setLocationStatus('Acquiring high-accuracy GPS coordinates...');
+    setLocationStatus('Pinpointing your exact GPS rooftop coordinates...');
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        const acc = Math.round(position.coords.accuracy);
         const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
         
+        // Save silently without displaying raw coordinates
         setFormData((prev) => ({ ...prev, locationCoords: mapUrl }));
-        setLocationStatus(`Location verified (Accuracy: ~${acc}m). Google Maps link attached.`);
+        setHasLocation(true);
+        setLocationStatus('Exact GPS rooftop coordinates tagged successfully.');
         setIsGettingLocation(false);
       },
       (err) => {
-        console.warn('Geolocation error:', err);
-        setLocationStatus('Could not access location. Please check browser permissions or enter your address below.');
+        console.warn('Geolocation warning:', err);
+        setLocationStatus('Could not access GPS. Please ensure location is enabled or enter your address below.');
         setIsGettingLocation(false);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { 
+        enableHighAccuracy: true, 
+        timeout: 10000, 
+        maximumAge: 0 
+      }
     );
   };
 
   const generateWhatsAppMessage = () => {
-    return (
-      `Hi, I want solar panel cleaning in ${city}.\n` +
+    let msg = `Hi, I want solar panel cleaning in ${city}.\n` +
       `• Name: ${formData.name || '-'}\n` +
       `• Phone: ${formData.customerPhone || '-'}\n` +
-      `• Customer Type: ${formData.type}\n` +
+      `• Category: ${formData.type}\n` +
       `• Plant Size: ${formData.size ? `${formData.size} kW` : 'Not sure'}\n` +
-      `• Address/Landmark: ${formData.address || '-'}` +
-      (formData.locationCoords ? `\n• GPS Location: ${formData.locationCoords}` : '')
-    );
+      `• Preferred Date: ${formData.preferredDate || 'Earliest available'}\n` +
+      `• Preferred Time: ${formData.preferredTime || '-'}\n` +
+      `• Address/Landmark: ${formData.address || '-'}`;
+    
+    if (formData.locationCoords) {
+      msg += `\n• Google Maps Location: ${formData.locationCoords}`;
+    }
+    return msg;
   };
 
   const handleSubmit = async (e) => {
@@ -81,32 +97,33 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
     setIsSubmitting(true);
 
     try {
-      // Phase 1: Store lead locally to guarantee zero data loss & ready for Phase 2 API
-      const newLead = {
-        ...formData,
+      const payload = {
+        name: formData.name,
+        customerPhone: formData.customerPhone,
+        type: formData.type,
+        size: Number(formData.size) || null,
+        address: formData.address,
+        preferredDate: formData.preferredDate,
+        preferredTime: formData.preferredTime,
+        locationCoords: formData.locationCoords,
         city,
-        submittedAt: new Date().toISOString(),
-        id: 'LEAD-' + Date.now()
+        source: 'Website Booking Form'
       };
-      
-      const existingLeads = JSON.parse(localStorage.getItem('solar_local_leads') || '[]');
-      existingLeads.unshift(newLead);
-      localStorage.setItem('solar_local_leads', JSON.stringify(existingLeads));
 
-      // Attempt to post to backend API if ready (Phase 2 bridge)
+      // 1. Post to backend API (saves in MongoDB Atlas and dispatches email alert)
       try {
         await fetch('/api/leads', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newLead)
+          body: JSON.stringify(payload)
         });
-      } catch (e) {
-        // Soft fallback for Phase 1
+      } catch (apiErr) {
+        console.warn('Backend API submission:', apiErr);
       }
 
       setSubmittedSuccess(true);
 
-      // Open WhatsApp with pre-filled message
+      // 2. Open WhatsApp with complete formatted details, scheduled date/time and Google Maps link
       const text = generateWhatsAppMessage();
       const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
       window.open(waUrl, '_blank');
@@ -120,14 +137,14 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
   return (
     <section id="book" className="book-section">
       <div className="container">
-        <div className="section-head">
+        <div className="section-head text-center">
           <div className="section-badge">
-            <Send size={15} />
-            <span>Fast Rooftop Booking</span>
+            <Send size={14} />
+            <span>Fast Doorstep Booking</span>
           </div>
-          <h2>Book a Cleaning Visit</h2>
+          <h2>Schedule a Cleaning Visit</h2>
           <p>
-            Fill out your details below. You will be connected directly on WhatsApp with our service team in {city}.
+            Choose your preferred date &amp; time slot. Our team will coordinate your doorstep cleaning visit.
           </p>
         </div>
 
@@ -135,115 +152,196 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
           <div className="card booking-card">
             {submittedSuccess ? (
               <div className="success-state">
-                <CheckCircle2 size={56} className="success-icon" />
+                <CheckCircle2 size={50} className="success-icon" />
                 <h3>Booking Request Received!</h3>
                 <p>
-                  Thank you, <strong>{formData.name || 'valued customer'}</strong>. Our cleaning team will contact you shortly to confirm your scheduled slot.
+                  Thank you, <strong>{formData.name || 'valued customer'}</strong>. Our cleaning crew has logged your appointment for{' '}
+                  <strong>{formData.preferredDate || 'the upcoming slot'}</strong> ({formData.preferredTime}).
                 </p>
-                <button 
-                  type="button" 
-                  onClick={() => setSubmittedSuccess(false)}
-                  className="btn btn-secondary"
-                  style={{ marginTop: '16px' }}
-                >
-                  Book Another Visit
-                </button>
+                {formData.locationCoords && (
+                  <div className="gps-success-pill">
+                    <MapPin size={15} />
+                    <span>Google Maps location attached to your booking</span>
+                  </div>
+                )}
+                <div>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setSubmittedSuccess(false);
+                      setHasLocation(false);
+                      setLocationStatus('');
+                      setFormData({ 
+                        name: '', 
+                        customerPhone: '', 
+                        type: 'Home owner', 
+                        size: '', 
+                        address: '', 
+                        preferredDate: '', 
+                        preferredTime: 'Morning (7:00 AM – 10:00 AM)', 
+                        locationCoords: '' 
+                      });
+                    }}
+                    className="btn btn-secondary btn-sm"
+                    style={{ marginTop: '20px' }}
+                  >
+                    Book Another Rooftop
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="booking-form">
-                {/* Name */}
-                <div className="form-group">
-                  <label htmlFor={nameId}>Your Name *</label>
-                  <input
-                    id={nameId}
-                    name="name"
-                    required
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={handleChange}
-                  />
+                {/* 1. Name and Phone Row */}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor={nameId}>Your Name *</label>
+                    <input
+                      id={nameId}
+                      name="name"
+                      required
+                      type="text"
+                      placeholder="e.g. Rahul Sharma"
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor={phoneId}>Phone / WhatsApp Number *</label>
+                    <input
+                      id={phoneId}
+                      name="customerPhone"
+                      required
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={formData.customerPhone}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
 
-                {/* Phone */}
-                <div className="form-group">
-                  <label htmlFor={phoneId}>Phone / WhatsApp Number *</label>
-                  <input
-                    id={phoneId}
-                    name="customerPhone"
-                    required
-                    type="tel"
-                    placeholder="e.g. 9876543210"
-                    value={formData.customerPhone}
-                    onChange={handleChange}
-                  />
+                {/* 2. Customer Category and Plant Size Row */}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor={typeId}>Customer Category</label>
+                    <select
+                      id={typeId}
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                    >
+                      {CUSTOMER_TYPES.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor={sizeId}>Plant Capacity (kW)</label>
+                    <input
+                      id={sizeId}
+                      name="size"
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 5"
+                      value={formData.size}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
 
-                {/* Type of Customer */}
-                <div className="form-group">
-                  <label htmlFor={typeId}>Customer Category</label>
-                  <select
-                    id={typeId}
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                  >
-                    {CUSTOMER_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
+                {/* 3. Preferred Date & Time Slot Row (NEW) */}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor={dateId} className="flex-label">
+                      <Calendar size={15} className="label-icon" />
+                      <span>Preferred Cleaning Date</span>
+                    </label>
+                    <input
+                      id={dateId}
+                      name="preferredDate"
+                      type="date"
+                      min={todayDate}
+                      value={formData.preferredDate}
+                      onChange={handleChange}
+                      className="date-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor={timeId} className="flex-label">
+                      <Clock size={15} className="label-icon" />
+                      <span>Preferred Time Slot</span>
+                    </label>
+                    <select
+                      id={timeId}
+                      name="preferredTime"
+                      value={formData.preferredTime}
+                      onChange={handleChange}
+                    >
+                      <option value="Morning (7:00 AM – 10:00 AM)">Morning (7:00 AM – 10:00 AM) - Recommended</option>
+                      <option value="Late Morning (10:00 AM – 1:00 PM)">Late Morning (10:00 AM – 1:00 PM)</option>
+                      <option value="Afternoon (1:00 PM – 4:00 PM)">Afternoon (1:00 PM – 4:00 PM)</option>
+                      <option value="Evening (4:00 PM – 7:00 PM)">Evening (4:00 PM – 7:00 PM)</option>
+                      <option value="Flexible / Any Time">Flexible / Any Time</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* System Size */}
+                {/* 4. Address */}
                 <div className="form-group">
-                  <label htmlFor={sizeId}>Plant Size in kW (if known)</label>
-                  <input
-                    id={sizeId}
-                    name="size"
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 5"
-                    value={formData.size}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                {/* Address / Landmark */}
-                <div className="form-group">
-                  <label htmlFor={addressId}>Address / Colony / Society Landmark *</label>
+                  <label htmlFor={addressId}>Address / Colony Landmark *</label>
                   <input
                     id={addressId}
                     name="address"
                     required
-                    placeholder="e.g. Gomti Nagar, Indira Nagar, etc."
+                    placeholder="e.g. House No 42, Gomti Nagar, Near Post Office"
                     value={formData.address}
                     onChange={handleChange}
                   />
                 </div>
 
-                {/* Location GPS Button */}
-                <div className="location-box">
-                  <button
-                    type="button"
-                    onClick={handleGetLocation}
-                    disabled={isGettingLocation}
-                    className="btn btn-secondary btn-location"
-                  >
-                    {isGettingLocation ? (
-                      <>
-                        <Loader2 size={18} className="spinner" />
-                        <span>Detecting GPS Location...</span>
-                      </>
-                    ) : (
-                      <>
-                        <MapPin size={18} className="location-pin-icon" />
-                        <span>Share my precise GPS location</span>
-                      </>
-                    )}
-                  </button>
-                  <small className="location-status-text">
-                    {locationStatus || 'Optional. Helps our field crew locate your building roof accurately.'}
-                  </small>
+                {/* 5. Clean GPS Location Tag Button */}
+                <div className="gps-action-container">
+                  {!hasLocation ? (
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={isGettingLocation}
+                      className="btn-location"
+                    >
+                      {isGettingLocation ? (
+                        <>
+                          <Loader2 size={16} className="spinner" />
+                          <span>Pinpointing exact GPS rooftop...</span>
+                        </>
+                      ) : (
+                        <>
+                          <MapPin size={16} className="pin-icon" />
+                          <span>Share my precise GPS location (1-Click)</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="location-verified-pill">
+                      <div className="verified-left">
+                        <Check size={16} className="check-icon" />
+                        <span>GPS Rooftop Location Tagged</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleGetLocation}
+                        className="re-tag-btn"
+                        title="Re-capture location"
+                      >
+                        Update
+                      </button>
+                    </div>
+                  )}
+
+                  {locationStatus && (
+                    <span className="location-hint-text">{locationStatus}</span>
+                  )}
                 </div>
 
                 {/* Submit CTA */}
@@ -253,7 +351,7 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
                   className="btn btn-wa btn-lg full-btn"
                 >
                   <MessageCircle size={20} />
-                  <span>{isSubmitting ? 'Sending Request...' : 'Send booking on WhatsApp'}</span>
+                  <span>{isSubmitting ? 'Registering Booking...' : 'Send booking on WhatsApp'}</span>
                 </button>
               </form>
             )}
@@ -263,37 +361,141 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
 
       <style jsx>{`
         .book-section {
-          background: var(--surface);
+          background: var(--bg);
           border-bottom: 1px solid var(--line);
+          padding: 55px 0 65px;
+        }
+
+        .text-center {
+          text-align: center;
+          margin-bottom: 28px;
         }
 
         .booking-wrapper {
-          max-width: 600px;
+          max-width: 680px;
           margin: 0 auto;
         }
 
         .booking-card {
-          padding: 32px;
+          padding: 28px 32px;
+          border-color: var(--line);
+          background: var(--surface);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
         }
 
-        .location-box {
-          margin: 6px 0 24px;
+        .form-row {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+
+        .form-group {
+          margin-bottom: 14px;
+        }
+
+        .form-group label {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--text);
+          margin-bottom: 5px;
+          display: block;
+        }
+
+        .flex-label {
+          display: flex !important;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .label-icon {
+          color: var(--accent);
+        }
+
+        input, select {
+          padding: 11px 14px;
+          font-size: 0.95rem;
+          border-radius: var(--radius-md);
+        }
+
+        .date-input {
+          cursor: pointer;
+        }
+
+        .gps-action-container {
+          margin: 6px 0 20px;
         }
 
         .btn-location {
           width: 100%;
-          border-style: dashed;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          background: var(--bg);
+          border: 1.5px dashed var(--line);
+          color: var(--text);
+          font-weight: 600;
+          font-size: 0.88rem;
+          padding: 10px 14px;
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        .location-pin-icon {
+        .btn-location:hover {
+          border-color: var(--accent);
+          background: var(--accent-soft);
+          color: var(--accent-hover);
+        }
+
+        .pin-icon {
           color: #ef4444;
         }
 
-        .location-status-text {
+        .location-verified-pill {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #ecfdf5;
+          border: 1.5px solid #a7f3d0;
+          padding: 9px 14px;
+          border-radius: var(--radius-md);
+          color: #065f46;
+          font-weight: 600;
+          font-size: 0.88rem;
+        }
+
+        :global(:root[data-theme="dark"]) .location-verified-pill {
+          background: rgba(16, 185, 129, 0.15);
+          border-color: rgba(16, 185, 129, 0.3);
+          color: #34d399;
+        }
+
+        .verified-left {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .check-icon {
+          color: #10b981;
+        }
+
+        .re-tag-btn {
+          background: transparent;
+          border: none;
+          color: #059669;
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .location-hint-text {
           display: block;
-          margin-top: 8px;
+          font-size: 0.78rem;
           color: var(--muted);
-          font-size: 0.84rem;
+          margin-top: 5px;
         }
 
         .full-btn {
@@ -303,12 +505,25 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
 
         .success-state {
           text-align: center;
-          padding: 30px 10px;
+          padding: 24px 10px;
         }
 
         .success-icon {
           color: #10b981;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
+        }
+
+        .gps-success-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #eef2ff;
+          color: #4338ca;
+          font-size: 0.82rem;
+          font-weight: 600;
+          padding: 6px 12px;
+          border-radius: var(--radius-full);
+          margin-top: 12px;
         }
 
         .spinner {
@@ -320,7 +535,11 @@ export default function BookingForm({ phone = "919648847816", city = "Lucknow" }
           to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
+          .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+          }
           .booking-card {
             padding: 20px;
           }

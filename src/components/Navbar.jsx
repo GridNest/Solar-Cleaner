@@ -36,6 +36,7 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
 
   const navLinks = [
     { name: 'Services', href: '#services' },
+    { name: 'Recent Work', href: '#projects' },
     { name: 'Commercial', href: '#commercial' },
     { name: 'How It Works', href: '#how-it-works' },
     { name: 'Estimate', href: '#estimate' },
@@ -44,15 +45,16 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
 
   return (
     <header className={`navbar-wrapper ${scrolled ? 'navbar-scrolled' : ''}`}>
-      <div className="container nav-content">
-        <a href="#" className="brand-logo" aria-label="SolarCleaner.in Homepage">
+      <div className="nav-container">
+        {/* Brand Logo - Solar Cleaner */}
+        <a href="#" className="brand-logo" aria-label="Solar Cleaner Homepage">
           <div className="logo-icon-box">
             <Sparkles size={20} className="sparkle-icon" />
           </div>
-          <span className="logo-text">Solar<span>Cleaner</span>.in</span>
+          <span className="logo-text">Solar <span>Cleaner</span></span>
         </a>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - Strictly Single Horizontal Line with proper alignment */}
         <nav className="desktop-nav" aria-label="Main Navigation">
           {navLinks.map((link) => (
             <a key={link.name} href={link.href} className="nav-link">
@@ -61,7 +63,7 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           ))}
         </nav>
 
-        {/* Actions */}
+        {/* Action Buttons */}
         <div className="nav-actions">
           <button 
             onClick={toggleTheme} 
@@ -138,27 +140,32 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           top: 0;
           z-index: 100;
           background: var(--bg);
-          border-bottom: 1px solid transparent;
+          border-bottom: 1px solid var(--line);
           transition: all 0.3s ease;
-          padding: 14px 0;
+          padding: 12px 0;
+          width: 100%;
         }
 
         .navbar-scrolled {
           background: rgba(255, 253, 247, 0.95);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-bottom-color: var(--line);
-          box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
         }
 
         :global(:root[data-theme="dark"]) .navbar-scrolled {
           background: rgba(16, 20, 28, 0.95);
         }
 
-        .nav-content {
+        .nav-container {
+          max-width: 1220px;
+          margin: 0 auto;
+          padding: 0 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          gap: 20px;
+          width: 100%;
         }
 
         .brand-logo {
@@ -167,6 +174,7 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           gap: 10px;
           text-decoration: none;
           color: var(--text);
+          flex-shrink: 0;
         }
 
         .logo-icon-box {
@@ -178,12 +186,14 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           place-items: center;
           color: #1d2433;
           box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+          flex-shrink: 0;
         }
 
         .logo-text {
           font-weight: 800;
           font-size: 1.3rem;
           letter-spacing: -0.02em;
+          white-space: nowrap;
         }
 
         .logo-text span {
@@ -193,14 +203,20 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
         .desktop-nav {
           display: flex;
           align-items: center;
-          gap: 24px;
+          justify-content: center;
+          gap: 22px;
+          flex-wrap: nowrap;
+          white-space: nowrap;
+          margin: 0 auto;
         }
 
         .nav-link {
           color: var(--muted);
           text-decoration: none;
           font-weight: 600;
-          font-size: 0.95rem;
+          font-size: 0.92rem;
+          white-space: nowrap;
+          padding: 6px 4px;
           transition: color 0.2s ease;
         }
 
@@ -212,14 +228,15 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           display: flex;
           align-items: center;
           gap: 12px;
+          flex-shrink: 0;
         }
 
         .theme-btn {
           background: var(--surface);
           border: 1px solid var(--line);
           color: var(--text);
-          width: 40px;
-          height: 40px;
+          width: 38px;
+          height: 38px;
           border-radius: 10px;
           display: grid;
           place-items: center;
@@ -230,6 +247,12 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
         .theme-btn:hover {
           border-color: var(--accent);
           color: var(--accent);
+        }
+
+        .nav-btn {
+          padding: 10px 18px;
+          font-size: 0.92rem;
+          white-space: nowrap;
         }
 
         .mobile-toggle {
@@ -246,11 +269,11 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
 
         .mobile-menu-overlay {
           position: fixed;
-          top: 68px;
+          top: 64px;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.4);
+          background: rgba(0, 0, 0, 0.5);
           backdrop-filter: blur(4px);
           z-index: 99;
           animation: fadeIn 0.2s ease;
@@ -266,13 +289,13 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
         .mobile-nav-links {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 14px;
         }
 
         .mobile-nav-link {
           color: var(--text);
           font-weight: 600;
-          font-size: 1.1rem;
+          font-size: 1.05rem;
           text-decoration: none;
           padding: 8px 0;
           border-bottom: 1px solid var(--line);
@@ -287,7 +310,7 @@ export default function Navbar({ phone = "919648847816", city = "Lucknow" }) {
           to { opacity: 1; }
         }
 
-        @media (max-width: 860px) {
+        @media (max-width: 960px) {
           .desktop-nav {
             display: none;
           }

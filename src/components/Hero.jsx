@@ -1,8 +1,20 @@
 'use client';
 
-import { Calculator, CalendarCheck, ShieldCheck, Zap, Droplets, ArrowRight } from 'lucide-react';
+import { Calculator, CalendarCheck, Zap, Droplets, ShieldCheck, ArrowRight } from 'lucide-react';
 
-export default function Hero({ city = "Lucknow" }) {
+export default function Hero({ 
+  city = "Lucknow",
+  badge = "Professional Solar Panel Cleaning in Lucknow",
+  title = "Clean panels.",
+  titleHighlight = "More power. Lower bills.",
+  description = "Dust, bird droppings and pollution quietly cut your solar generation by up to 30%. We clean home rooftops, housing societies and commercial solar plants safely, with soft brushes and treated demineralized water, on a schedule that suits you.",
+  stat1Title = "Up to 30% Boost",
+  stat1Sub = "In daily energy output",
+  stat2Title = "Treated RO Water",
+  stat2Sub = "Soft scratch-free brushes",
+  stat3Title = "GST Invoices",
+  stat3Sub = "& WhatsApp photo reports",
+}) {
   return (
     <section className="hero-section">
       <div className="container">
@@ -10,18 +22,16 @@ export default function Hero({ city = "Lucknow" }) {
           <div className="hero-content">
             <div className="section-badge animate-float">
               <span className="pulse-dot"></span>
-              <span>Professional Solar Panel Cleaning in {city}</span>
+              <span>{badge}</span>
             </div>
 
             <h1>
-              Clean panels.<br />
-              <span className="gradient-highlight">More power.</span> Lower bills.
+              {title}<br />
+              <span className="gradient-highlight">{titleHighlight}</span>
             </h1>
 
             <p className="hero-description">
-              Dust, bird droppings and pollution quietly cut your solar generation by up to 30%. 
-              We clean home rooftops, housing societies and commercial solar plants safely, 
-              with soft brushes and treated demineralized water, on a schedule that suits you.
+              {description}
             </p>
 
             <div className="hero-actions">
@@ -33,8 +43,8 @@ export default function Hero({ city = "Lucknow" }) {
                 <CalendarCheck size={20} />
                 <span>Book a visit</span>
               </a>
-              <a href="#services" className="btn btn-outline btn-lg">
-                <span>Our services</span>
+              <a href="#projects" className="btn btn-outline btn-lg">
+                <span>Recent Projects</span>
                 <ArrowRight size={18} />
               </a>
             </div>
@@ -46,8 +56,8 @@ export default function Hero({ city = "Lucknow" }) {
                   <Zap size={20} />
                 </div>
                 <div>
-                  <strong>Up to 30% Boost</strong>
-                  <span>In daily energy output</span>
+                  <strong>{stat1Title}</strong>
+                  <span>{stat1Sub}</span>
                 </div>
               </div>
 
@@ -56,8 +66,8 @@ export default function Hero({ city = "Lucknow" }) {
                   <Droplets size={20} />
                 </div>
                 <div>
-                  <strong>Treated RO Water</strong>
-                  <span>Soft scratch-free brushes</span>
+                  <strong>{stat2Title}</strong>
+                  <span>{stat2Sub}</span>
                 </div>
               </div>
 
@@ -66,8 +76,8 @@ export default function Hero({ city = "Lucknow" }) {
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <strong>GST Invoices</strong>
-                  <span>&amp; WhatsApp photo reports</span>
+                  <strong>{stat3Title}</strong>
+                  <span>{stat3Sub}</span>
                 </div>
               </div>
             </div>
@@ -85,7 +95,7 @@ export default function Hero({ city = "Lucknow" }) {
         }
 
         .hero-content {
-          max-width: 800px;
+          max-width: 900px;
         }
 
         .gradient-highlight {
@@ -102,22 +112,28 @@ export default function Hero({ city = "Lucknow" }) {
           color: var(--muted);
           line-height: 1.65;
           margin-bottom: 30px;
-          max-width: 680px;
+          max-width: 760px;
         }
 
         .hero-actions {
           display: flex;
+          align-items: center;
           gap: 14px;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           margin-bottom: 40px;
+        }
+
+        .hero-actions .btn {
+          white-space: nowrap;
         }
 
         .hero-features {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 18px;
-          padding-top: 24px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+          padding-top: 28px;
           border-top: 1px solid var(--line);
+          max-width: 860px;
         }
 
         .hero-feature-item {

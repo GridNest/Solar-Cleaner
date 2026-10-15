@@ -14,7 +14,7 @@ export default function Footer({ gstin = "", city = "Lucknow" }) {
               <div className="logo-icon-sm">
                 <Sparkles size={16} />
               </div>
-              <span className="brand-title">Solar<span>Cleaner</span>.in</span>
+              <span className="brand-title">Solar <span>Cleaner</span></span>
             </div>
             <p className="footer-tagline">
               Professional, safe, and scheduled solar panel cleaning for homes, housing societies, RWAs, and factories in {city} &amp; surrounding areas.
@@ -26,6 +26,7 @@ export default function Footer({ gstin = "", city = "Lucknow" }) {
               <h5>Quick Navigation</h5>
               <ul>
                 <li><a href="#services">Our Services</a></li>
+                <li><a href="#projects">Recent Projects</a></li>
                 <li><a href="#commercial">Commercial &amp; Industrial</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#estimate">Instant Calculator</a></li>
@@ -48,7 +49,7 @@ export default function Footer({ gstin = "", city = "Lucknow" }) {
 
         <div className="footer-bottom">
           <p className="copyright-text">
-            © {currentYear} SolarCleaner.in. All rights reserved.
+            © {currentYear} Solar Cleaner. All rights reserved.
             {gstin && <span className="gstin-badge"> · GSTIN: {gstin}</span>}
           </p>
 

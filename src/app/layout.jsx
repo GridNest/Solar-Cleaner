@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'SolarCleaner.in – Professional Solar Panel Cleaning in Lucknow',
+  title: 'Solar Cleaner – Professional Solar Panel Cleaning in Lucknow',
   description: 'Boost your solar power generation by up to 30%. Professional solar panel cleaning for homes, societies, RWAs, and commercial factories in Lucknow. Soft brushes & treated RO water.',
   keywords: [
     'Solar panel cleaning Lucknow',
@@ -12,9 +12,9 @@ export const metadata = {
     'Commercial solar cleaning Uttar Pradesh',
     'Solar AMC contract Lucknow'
   ],
-  authors: [{ name: 'SolarCleaner.in' }],
-  creator: 'SolarCleaner.in',
-  publisher: 'SolarCleaner.in',
+  authors: [{ name: 'Solar Cleaner' }],
+  creator: 'Solar Cleaner',
+  publisher: 'Solar Cleaner',
   formatDetection: {
     telephone: true,
     date: false,
@@ -22,16 +22,16 @@ export const metadata = {
     email: true,
   },
   openGraph: {
-    title: 'SolarCleaner.in – Professional Solar Panel Cleaning in Lucknow',
+    title: 'Solar Cleaner – Professional Solar Panel Cleaning in Lucknow',
     description: 'Clean panels. More power. Lower electricity bills. Book certified doorstep solar cleaning in Lucknow.',
     url: 'https://solarcleaner.in',
-    siteName: 'SolarCleaner.in',
+    siteName: 'Solar Cleaner',
     locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SolarCleaner.in – Professional Solar Panel Cleaning',
+    title: 'Solar Cleaner – Professional Solar Panel Cleaning',
     description: 'Professional solar panel cleaning for homes, societies, and industrial plants. Book a visit or get an instant estimate.',
   },
   robots: {
